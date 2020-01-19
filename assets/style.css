@@ -1,0 +1,25 @@
+body {
+    padding-top: 50px;
+}
+
+.img-fluid {
+    max-height: 100%;
+}
+
+.user-bar {
+    height: 50px;
+}
+
+.user-bar > div {
+    line-height: 50px;
+}
+
+.user-bar .img-fluid {
+    border-top-right-radius: 50%;
+    border-bottom-right-radius: 50%;
+}
+
+.top-40 {
+    max-height: calc(100vh - 50px);
+    overflow: auto;
+}
