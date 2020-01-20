@@ -20,7 +20,7 @@ class SpotifyCurl
     {
         $this->ch = curl_init();
 
-        curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, false); // SSL Disabled for localhost testing, never do this on production!
+        curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, false); // SSL Disabled for localhost testing, never put this on production!
         curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($this->ch, CURLOPT_HTTPHEADER, $headers);
 
@@ -28,7 +28,7 @@ class SpotifyCurl
     }
 
     /**
-     * @param $url
+     * @param string $url
      * @param array $data
      * @param array $headers
      * @return bool|\stdClass
@@ -47,7 +47,11 @@ class SpotifyCurl
 
         return $spotify_curl->exec();
     }
-    
+
+    /**
+     * @param string $url
+     * @return bool|\stdClass
+     */
     public static function get($url)
     {
         if ($spotify = Spotify::getInstance()) {
@@ -68,6 +72,9 @@ class SpotifyCurl
         return false;
     }
 
+    /**
+     * @return bool|\stdClass
+     */
     public function exec()
     {
         if ($server_output = curl_exec($this->ch)) {
@@ -78,18 +85,22 @@ class SpotifyCurl
 
             if (isset($result->error)) {
                 //TODO write error handler for Spotify
-
+                //Dumpje van Tom
+                echo "<pre style='background-color: #FFF; z-index: 9999999; position: relative;'>";
+                    var_dump($result);
+                echo "</pre>";
                 return false;
-            }
-
-            if ($spotify = Spotify::getInstance()) {
-                //TODO refresh access_token
             }
 
             return $result;
         }
 
         //TODO write error handler for curl.
+
+        //Dumpje van Tom
+        echo "<pre style='background-color: #FFF; z-index: 9999999; position: relative;'>";
+            var_dump($server_output,curl_error($this->ch),curl_errno($this->ch));
+        echo "</pre>";
 
         curl_close ($this->ch);
 

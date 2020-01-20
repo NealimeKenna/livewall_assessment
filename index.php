@@ -1,26 +1,14 @@
-<?php error_reporting(E_ALL);
-ini_set("display_errors", 1);
+<?php
 
-session_start();
+require_once('config.php');
 
-define('SITE_URL', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]" . explode('?', $_SERVER['REQUEST_URI'], 2)[0]);
-
-require_once('autoloader.php');
-
-use \api\Spotify;
-
-$spotify = Spotify::getInstance();
+$spotify = \api\Spotify::getInstance();
 
 if (isset($_GET['code'])) {
     $spotify->setCode($_GET['code']);
 }
 
-$spotify->authorize();
-
-//Dumpje van Tom
-echo "<pre style='background-color: #FFF; z-index: 9999999; position: relative;'>";
-    var_dump($spotify);
-echo "</pre>";?>
+$spotify->authorize(); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -53,7 +41,7 @@ echo "</pre>";?>
                             Please connect your Spotify account. We will not save or distribute any information from
                             your account.
                         </p>
-                        <a class="btn btn-success" href="<?= Spotify::getConnectUrl() ?>">Connect</a>
+                        <a class="btn btn-success" href="<?= \api\Spotify::getConnectUrl() ?>">Connect</a>
                     </div>
                 </div>
             </div>
@@ -84,25 +72,66 @@ echo "</pre>";?>
                     </span>
             </div>
         </div>
-        <div class="col-4 top-40">
-            <?php if ($top_40 = $spotify->getTop40()) {
-                foreach ($top_40->tracks->items as $entry) {
-                    $track = $entry->track; ?>
-                    <a href="<?= $track->external_urls->spotify ?>" class="row mb-1">
-                        <div class="col-3">
-                            <img class="img-fluid" src="<?= $track->album->images[0]->url ?>" alt="cover"/>
-                        </div>
-                        <div class="col-9">
-                            <div class="name">
-                                <?= $track->name ?>
-                            </div>
-                        </div>
-                    </a>
-                <?php }
-            } ?>
+        <div class="d-flex">
+            <div class="col-4 top-40">
+                <h3>Top 40</h3>
+            </div>
+            <div class="col-4">
+                <h3>Overeenkomsten</h3>
+            </div>
+            <div class="col-4 text-center user-top">
+                <h3>Top van de user</h3>
+                <div class="artists">
+                    <h4>Artiesten</h4>
+                </div>
+                <div class="tracks">
+                    <h4>Tracks</h4>
+                </div>
+            </div>
         </div>
-        <div class="col-4"></div>
-        <div class="col-4"></div>
+        <script>
+            $(function () {
+                $.ajaxSetup({
+                    async: false
+                });
+
+                const top40 = spotifyCurl('getTop40').tracks.items;
+                const top40_wrapper = $('.top-40');
+
+                $.each(top40, function (key, item) {
+                    const track = item.track;
+
+                    top40_wrapper.append('<a id="track-' + key + '" href="' + track.external_urls.spotify + '" target="_blank" class="card mb-1">' +
+                        '<img class="img-fluid" src="' + track.album.images[0].url + '" alt="cover"/>' +
+                        '<div class="col-9"><div class="name">' + track.name + '</div></div>' +
+                        '</a>');
+                });
+
+                const user_top_wrapper = $('.user-top');
+                const ut_tracks_wrapper = user_top_wrapper.find('.tracks');
+                const ut_artists_wrapper = user_top_wrapper.find('.artists');
+                const user_top_artists = spotifyCurl('getUserTopArtists').items;
+                const user_top_tracks = spotifyCurl('getUserTopTracks').items;
+
+                $.each(user_top_artists, function(key, item) {
+                    ut_artists_wrapper.append('<div>' + item.name + '</div>');
+                });
+
+                $.each(user_top_tracks, function(key, item) {
+                    ut_tracks_wrapper.append('<div>' + item.name + '</div>');
+                });
+
+                function spotifyCurl(func) {
+                    let result = false;
+
+                    $.post('actionhandler.php', {func: func}, function (data) {
+                        result = $.parseJSON(data);
+                    });
+
+                    return result;
+                }
+            });
+        </script>
     <?php } ?>
 </body>
 </html>

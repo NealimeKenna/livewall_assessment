@@ -2,6 +2,10 @@ body {
     padding-top: 50px;
 }
 
+h3 {
+    text-align: center;
+}
+
 .img-fluid {
     max-height: 100%;
 }
@@ -22,4 +26,12 @@ body {
 .top-40 {
     max-height: calc(100vh - 50px);
     overflow: auto;
+}
+
+.top-40 .card {
+    overflow: hidden;
+}
+
+.top-40 .card .img-fluid {
+    max-width: 100px;
 }
