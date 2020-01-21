@@ -114,6 +114,7 @@ $spotify->authorize(); ?>
                 const user_top_artists = spotifyCurl('getUserTopArtists').items;
                 const user_top_tracks = spotifyCurl('getUserTopTracks').items;
 
+                // Load the playlist onto the screen.
                 $.each(playlist, function (key, item) {
                     const track = item.track;
                     let artists = '';
@@ -133,6 +134,7 @@ $spotify->authorize(); ?>
 
                 let artist_matches = [];
 
+                // Load the users top artists onto the screen.
                 $.each(user_top_artists, function (key, item) {
                     const append = '<div>' + item.name + '</div>';
 
@@ -153,6 +155,7 @@ $spotify->authorize(); ?>
 
                 let track_matches = [];
 
+                // Load the users top tracks onto the screen.
                 $.each(user_top_tracks, function (key, item) {
                     const append = '<div>' + item.name + '</div>';
 
@@ -169,6 +172,7 @@ $spotify->authorize(); ?>
                     }
                 });
 
+                // Calculate and show the total percentages of similarity between the user top and the given playlist.
                 let total_matches = $.unique($.merge(track_matches, artist_matches));
 
                 compare_artists.find('h4').append(' ' + artist_matches.length / playlist_size * 100 + '%');

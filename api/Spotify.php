@@ -19,12 +19,14 @@ class Spotify
     private $refresh_token = false;
 
     /**
+     * Get the active Spotify class instance.
+     * If there is none, create one.
      * @return Spotify|bool
      */
     public static function getInstance()
     {
         if (!self::$instance) {
-            $spotify =  new self();
+            $spotify = new self();
             $spotify->authorize();
 
             self::$instance = $spotify;
@@ -34,6 +36,7 @@ class Spotify
     }
 
     /**
+     * Set the fetch code Spotify needs to get the access code.
      * @param $code
      */
     public function setCode($code)
@@ -42,6 +45,7 @@ class Spotify
     }
 
     /**
+     * Get the url used for giving the api access to the users Spotify.
      * @return string
      */
     public static function getConnectUrl()
@@ -53,6 +57,7 @@ class Spotify
     }
 
     /**
+     * Get and refresh the access token needed to communicate with the Spotify api.
      * @return bool
      */
     public function authorize()
@@ -60,7 +65,7 @@ class Spotify
         if (isset($_SESSION['access_token']) && isset($_SESSION['refresh_token'])) {
             $this->refresh_token = $_SESSION['refresh_token'];
 
-            if(!$this->refreshTokens()) {
+            if (!$this->refreshTokens()) {
                 $_SESSION['access_token'] = false;
                 $_SESSION['refresh_token'] = false;
 
@@ -91,6 +96,8 @@ class Spotify
     }
 
     /**
+     * Get the user data from Spotify.
+     * DOCS: https://developer.spotify.com/documentation/web-api/reference/users-profile/get-current-users-profile/
      * @return bool|\stdClass
      */
     public function getUserInfo()
@@ -99,6 +106,8 @@ class Spotify
     }
 
     /**
+     * Get the users top tracks from Spotify.
+     * DOCS: https://developer.spotify.com/documentation/web-api/reference/personalization/get-users-top-artists-and-tracks/
      * @return bool|\stdClass
      */
     public function getUserTopTracks()
@@ -107,6 +116,8 @@ class Spotify
     }
 
     /**
+     * Get the users top artists from Spotify.
+     * DOCS: https://developer.spotify.com/documentation/web-api/reference/personalization/get-users-top-artists-and-tracks/
      * @return bool|\stdClass
      */
     public function getUserTopArtists()
@@ -115,6 +126,7 @@ class Spotify
     }
 
     /**
+     * Get the NL Top 40 playlist from Spotify.
      * @return false|\stdClass
      */
     public function getTop40()
@@ -123,6 +135,7 @@ class Spotify
     }
 
     /**
+     * Get a specific playlist from Spotify by it's ID.
      * @param $playlist
      * @return bool|\stdClass
      */
@@ -132,6 +145,7 @@ class Spotify
     }
 
     /**
+     * Get the access_token required for calls to the Spotify api.
      * @return bool
      */
     public function getAccessToken()

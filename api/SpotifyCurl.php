@@ -13,6 +13,7 @@ class SpotifyCurl
     private $ch = false;
 
     /**
+     * Start a curl instance with some basic settings for a clal to the Spotify api.
      * SpotifyCurl constructor.
      * @param array $headers
      */
@@ -28,6 +29,7 @@ class SpotifyCurl
     }
 
     /**
+     * Make a post call to the Spotify api.
      * @param string $url
      * @param array $data
      * @param array $headers
@@ -49,46 +51,44 @@ class SpotifyCurl
     }
 
     /**
+     * Make a get call to the Spotify api.
      * @param string $url
      * @return bool|\stdClass
      */
     public static function get($url)
     {
         if ($spotify = Spotify::getInstance()) {
-            if ($access_token = $spotify->getAccessToken()) {                
+            if ($access_token = $spotify->getAccessToken()) {
                 $spotify_curl = new self([
                     'Authorization: Bearer ' . $access_token,
                     'Content-type: application/json',
                     'Accept: application/json'
                 ]);
                 $ch = $spotify_curl->ch;
-                
+
                 curl_setopt($ch, CURLOPT_URL, $url);
 
                 return $spotify_curl->exec();
             }
         }
-        
+
         return false;
     }
 
     /**
+     * Execute the call to the Spotify api.
      * @return bool|\stdClass
      */
     public function exec()
     {
         if ($server_output = curl_exec($this->ch)) {
-            curl_close ($this->ch);
+            curl_close($this->ch);
 
             /** @var \stdClass $result */
             $result = json_decode($server_output);
 
             if (isset($result->error)) {
                 //TODO write error handler for Spotify
-                //Dumpje van Tom
-                echo "<pre style='background-color: #FFF; z-index: 9999999; position: relative;'>";
-                    var_dump($result);
-                echo "</pre>";
                 return false;
             }
 
@@ -97,12 +97,7 @@ class SpotifyCurl
 
         //TODO write error handler for curl.
 
-        //Dumpje van Tom
-        echo "<pre style='background-color: #FFF; z-index: 9999999; position: relative;'>";
-            var_dump($server_output,curl_error($this->ch),curl_errno($this->ch));
-        echo "</pre>";
-
-        curl_close ($this->ch);
+        curl_close($this->ch);
 
         return false;
     }
