@@ -23,15 +23,15 @@ h3 {
     border-bottom-right-radius: 50%;
 }
 
-.top-40 {
+.col-4 {
     max-height: calc(100vh - 50px);
     overflow: auto;
 }
 
-.top-40 .card {
+.playlist .card {
     overflow: hidden;
 }
 
-.top-40 .card .img-fluid {
+.playlist .card .img-fluid {
     max-width: 100px;
 }

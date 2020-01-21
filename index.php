@@ -73,11 +73,20 @@ $spotify->authorize(); ?>
             </div>
         </div>
         <div class="d-flex">
-            <div class="col-4 top-40">
-                <h3>Top 40</h3>
+            <div class="col-4 playlist">
+                <h3>Playlist</h3>
             </div>
-            <div class="col-4">
+            <div class="col-4 text-center compare-results">
                 <h3>Overeenkomsten</h3>
+                <div class="artists">
+                    <h4>Artiesten:</h4>
+                </div>
+                <div class="tracks">
+                    <h4>Tracks:</h4>
+                </div>
+                <div class="total">
+                    <h4>Totaal:</h4>
+                </div>
             </div>
             <div class="col-4 text-center user-top">
                 <h3>Top van de user</h3>
@@ -91,42 +100,93 @@ $spotify->authorize(); ?>
         </div>
         <script>
             $(function () {
-                $.ajaxSetup({
-                    async: false
-                });
-
-                const top40 = spotifyCurl('getTop40').tracks.items;
-                const top40_wrapper = $('.top-40');
-
-                $.each(top40, function (key, item) {
-                    const track = item.track;
-
-                    top40_wrapper.append('<a id="track-' + key + '" href="' + track.external_urls.spotify + '" target="_blank" class="card mb-1">' +
-                        '<img class="img-fluid" src="' + track.album.images[0].url + '" alt="cover"/>' +
-                        '<div class="col-9"><div class="name">' + track.name + '</div></div>' +
-                        '</a>');
-                });
-
+                // Potential for a user input spotify playlist ID. For now just get the NL Top 40.
+                const playlist = spotifyCurl('getTop40').tracks.items;
+                const playlist_size = playlist.length;
+                const playlist_wrapper = $('.playlist');
                 const user_top_wrapper = $('.user-top');
+                const compare_results = $('.compare-results');
+                const compare_artists = compare_results.find('.artists');
+                const compare_tracks = compare_results.find('.tracks');
+                const compare_total = compare_results.find('.total');
                 const ut_tracks_wrapper = user_top_wrapper.find('.tracks');
                 const ut_artists_wrapper = user_top_wrapper.find('.artists');
                 const user_top_artists = spotifyCurl('getUserTopArtists').items;
                 const user_top_tracks = spotifyCurl('getUserTopTracks').items;
 
-                $.each(user_top_artists, function(key, item) {
-                    ut_artists_wrapper.append('<div>' + item.name + '</div>');
+                $.each(playlist, function (key, item) {
+                    const track = item.track;
+                    let artists = '';
+
+                    if (track.artists.length > 0) {
+                        $.each(track.artists, function (artist_key, artist) {
+                            artists += '<div class="artist">' + artist.name + '</div>';
+                        });
+                    }
+
+                    playlist_wrapper.append('<a id="track-' + key + '" href="' + track.external_urls.spotify + '" target="_blank" class="card mb-1 flex-row">' +
+                        '<img class="img-fluid" src="' + track.album.images[0].url + '" alt="cover"/>' +
+                        '<div><div class="name">Track: ' + track.name + '</div>' +
+                        artists +
+                        '</div></a>');
                 });
 
-                $.each(user_top_tracks, function(key, item) {
-                    ut_tracks_wrapper.append('<div>' + item.name + '</div>');
+                let artist_matches = [];
+
+                $.each(user_top_artists, function (key, item) {
+                    const append = '<div>' + item.name + '</div>';
+
+                    ut_artists_wrapper.append(append);
+
+                    const matches = $.grep(playlist, function (track) {
+                        return $.grep(track.track.artists, function (artist) {
+                            return artist.id === item.id;
+                        }).length > 0;
+                    });
+
+                    if (matches.length > 0) {
+                        artist_matches = $.unique($.merge(artist_matches, matches));
+
+                        compare_artists.append(append);
+                    }
                 });
 
+                let track_matches = [];
+
+                $.each(user_top_tracks, function (key, item) {
+                    const append = '<div>' + item.name + '</div>';
+
+                    ut_tracks_wrapper.append(append);
+
+                    const matches = $.grep(playlist, function (track) {
+                        return track.track.id === item.id;
+                    });
+
+                    if (matches.length > 0) {
+                        track_matches = $.unique($.merge(track_matches, matches));
+
+                        compare_tracks.append('<div>' + item.name + '</div>');
+                    }
+                });
+
+                let total_matches = $.unique($.merge(track_matches, artist_matches));
+
+                compare_artists.find('h4').append(' ' + artist_matches.length / playlist_size * 100 + '%');
+                compare_tracks.find('h4').append(' ' + track_matches.length / playlist_size * 100 + '%');
+                compare_total.find('h4').append(' ' + total_matches.length / playlist_size * 100 + '%');
+
+                // Send a post request to the Spotify class. Do this async so the function waits on the post before
+                // executing the return.
                 function spotifyCurl(func) {
+                    $.ajaxSetup({async: false});
+
                     let result = false;
 
                     $.post('actionhandler.php', {func: func}, function (data) {
                         result = $.parseJSON(data);
                     });
+
+                    $.ajaxSetup({async: true});
 
                     return result;
                 }
