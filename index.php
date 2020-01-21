@@ -62,7 +62,7 @@ $spotify->authorize(); ?>
                         User: <?= $user->display_name ?>
                     </span>
             </div>
-            <div class="pr-2">
+            <div>
                     <span class="align-middle">
                         Spotify:
                         <a href="<?= $user->external_urls->spotify ?>" target="_blank"
@@ -70,6 +70,9 @@ $spotify->authorize(); ?>
                             <?= $user->external_urls->spotify ?>
                         </a>
                     </span>
+            </div>
+            <div class="mr-2 logout">
+                Logout
             </div>
         </div>
         <div class="d-flex">
@@ -194,6 +197,12 @@ $spotify->authorize(); ?>
 
                     return result;
                 }
+
+                $('.logout').click(function () {
+                    $.post('actionhandler.php', {logout: 1}, function () {
+                        location.reload();
+                    });
+                });
             });
         </script>
     <?php } ?>

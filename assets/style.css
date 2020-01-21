@@ -35,3 +35,7 @@ h3 {
 .playlist .card .img-fluid {
     max-width: 100px;
 }
+
+.logout {
+    cursor: pointer;
+}
